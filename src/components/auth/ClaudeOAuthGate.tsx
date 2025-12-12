@@ -58,36 +58,66 @@ export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) =>
     setIsLoading(false);
   }, []);
 
+  // Store the OAuth URL for manual copying
+  const [oauthUrl, setOauthUrl] = React.useState<string | null>(null);
+
   // Handle OAuth connect click
   const handleOAuthConnect = async () => {
     setError(null);
     try {
       const { url } = await getAuthorizationUrl();
+      setOauthUrl(url);
 
-      // Open in system browser - try multiple methods
+      // Try multiple methods to open the browser
       let opened = false;
 
-      // Try Electron API first
+      // Method 1: Electron API (if preload script loaded)
       if (typeof window !== "undefined" && window.electronAPI?.openExternal) {
         try {
           await window.electronAPI.openExternal(url);
           opened = true;
+          console.log("Opened via electronAPI.openExternal");
         } catch (e) {
           console.error("Electron openExternal failed:", e);
         }
       }
 
-      // Fallback to window.open
+      // Method 2: Use an anchor tag click (works in Electron)
       if (!opened) {
-        const newWindow = window.open(url, "_blank");
-        if (!newWindow) {
-          // If popup blocked, show the URL to copy
-          setError(`Please open this URL manually: ${url}`);
-          return;
+        try {
+          const link = document.createElement("a");
+          link.href = url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          opened = true;
+          console.log("Opened via anchor tag click");
+        } catch (e) {
+          console.error("Anchor tag click failed:", e);
         }
       }
 
+      // Method 3: window.open
+      if (!opened) {
+        try {
+          const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+          if (newWindow) {
+            opened = true;
+            console.log("Opened via window.open");
+          }
+        } catch (e) {
+          console.error("window.open failed:", e);
+        }
+      }
+
+      // Always proceed to pending state - show URL if nothing worked
       setAuthMode("oauth-pending");
+
+      if (!opened) {
+        console.log("No method worked - user will need to copy URL manually");
+      }
     } catch (err) {
       console.error("OAuth start error:", err);
       setError("Failed to start authentication. Please try again.");
@@ -334,21 +364,44 @@ export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) =>
                     </Button>
                   </div>
 
-                  <div className="mt-4 flex gap-4 justify-center">
-                    <button
-                      onClick={handleOAuthConnect}
-                      className="text-sm text-white/50 hover:text-white/70 flex items-center gap-2"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      Open sign in page again
-                    </button>
-                    <button
-                      onClick={switchToApiKeyMode}
-                      className="text-sm text-white/50 hover:text-white/70 flex items-center gap-2"
-                    >
-                      <Key className="w-4 h-4" />
-                      Use API key
-                    </button>
+                  <div className="mt-4 space-y-3">
+                    {oauthUrl && (
+                      <div className="p-3 bg-white/5 rounded-lg">
+                        <p className="text-xs text-white/50 mb-2">Browser didn't open? Copy this link:</p>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={oauthUrl}
+                            readOnly
+                            className="flex-1 px-2 py-1 bg-white/10 border border-white/20 rounded text-xs text-white/70 font-mono truncate"
+                          />
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(oauthUrl);
+                            }}
+                            className="px-2 py-1 bg-primary-500/20 hover:bg-primary-500/30 rounded text-xs text-primary-300"
+                          >
+                            Copy
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex gap-4 justify-center">
+                      <button
+                        onClick={handleOAuthConnect}
+                        className="text-sm text-white/50 hover:text-white/70 flex items-center gap-2"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        Try opening again
+                      </button>
+                      <button
+                        onClick={switchToApiKeyMode}
+                        className="text-sm text-white/50 hover:text-white/70 flex items-center gap-2"
+                      >
+                        <Key className="w-4 h-4" />
+                        Use API key
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
