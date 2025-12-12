@@ -39,9 +39,17 @@ async function generateCodeChallenge(verifier: string): Promise<string> {
 
 // Storage keys
 const PKCE_VERIFIER_KEY = "claude_pkce_verifier";
+const OAUTH_STATE_KEY = "claude_oauth_state";
 const OAUTH_TOKEN_KEY = "claude_oauth_token";
 const OAUTH_REFRESH_KEY = "claude_oauth_refresh";
 const OAUTH_EXPIRY_KEY = "claude_oauth_expiry";
+
+// Generate random state for CSRF protection
+function generateState(): string {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, "0")).join("");
+}
 
 export interface OAuthTokens {
   access_token: string;
@@ -63,9 +71,11 @@ export async function generatePKCE(): Promise<{ verifier: string; challenge: str
  */
 export async function getAuthorizationUrl(): Promise<{ url: string; verifier: string }> {
   const { verifier, challenge } = await generatePKCE();
+  const state = generateState();
 
-  // Store verifier for token exchange
+  // Store verifier and state for token exchange
   localStorage.setItem(PKCE_VERIFIER_KEY, verifier);
+  localStorage.setItem(OAUTH_STATE_KEY, state);
 
   const params = new URLSearchParams({
     response_type: "code",
@@ -74,6 +84,7 @@ export async function getAuthorizationUrl(): Promise<{ url: string; verifier: st
     code_challenge: challenge,
     code_challenge_method: "S256",
     scope: "user:inference",
+    state: state,
   });
 
   return {
