@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Claude OAuth Gate
+ * Claude Auth Gate
  *
- * Provides click-to-auth authentication with Claude accounts.
- * Users sign in with their Claude account (Free/Pro/Max) - no API keys needed.
+ * Provides a seamless "Connect with Claude" experience.
+ * Opens the API key creation page and auto-detects when user copies a key.
  */
 
 import * as React from "react";
@@ -18,16 +18,13 @@ import {
   ExternalLink,
   Clipboard,
   RefreshCw,
+  Key,
 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Card, CardContent } from "../ui/Card";
-import {
-  getAuthorizationUrl,
-  exchangeCodeForTokens,
-  isAuthenticated,
-  signOut,
-  getAccessToken,
-} from "@/lib/claude-oauth";
+
+// Storage key for API key
+const API_KEY_STORAGE = "anthropic_api_key";
 
 interface ClaudeOAuthGateProps {
   children: React.ReactNode;
@@ -36,108 +33,127 @@ interface ClaudeOAuthGateProps {
 export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) => {
   const [isAuthed, setIsAuthed] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [showCodeInput, setShowCodeInput] = React.useState(false);
-  const [authCode, setAuthCode] = React.useState("");
-  const [authState, setAuthState] = React.useState("");
+  const [showKeyInput, setShowKeyInput] = React.useState(false);
+  const [apiKey, setApiKey] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
-  const [isExchanging, setIsExchanging] = React.useState(false);
+  const [isValidating, setIsValidating] = React.useState(false);
+  const [clipboardPolling, setClipboardPolling] = React.useState(false);
 
   // Check auth status on mount
   React.useEffect(() => {
-    const checkAuth = async () => {
-      // Check if we have stored tokens
-      if (isAuthenticated()) {
-        // Verify token is still valid by trying to get it
-        const token = await getAccessToken();
-        setIsAuthed(!!token);
-      }
-      setIsLoading(false);
-    };
-    checkAuth();
+    const storedKey = localStorage.getItem(API_KEY_STORAGE);
+    if (storedKey) {
+      setIsAuthed(true);
+    }
+    setIsLoading(false);
   }, []);
 
-  // Handle sign in click
-  const handleSignIn = async () => {
-    try {
-      setError(null);
-      const authUrl = await getAuthorizationUrl();
+  // Poll clipboard for API key when waiting for user to copy
+  React.useEffect(() => {
+    if (!clipboardPolling) return;
 
-      // Extract state from URL for later verification
-      const url = new URL(authUrl);
-      const state = url.searchParams.get("state") || "";
-      setAuthState(state);
-
-      // Open auth URL in system browser
-      if (typeof window !== "undefined" && window.electronAPI?.openExternal) {
-        await window.electronAPI.openExternal(authUrl);
-      } else {
-        window.open(authUrl, "_blank");
+    const checkClipboard = async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text.startsWith("sk-ant-") && text.length > 20) {
+          setApiKey(text.trim());
+          setClipboardPolling(false);
+          // Auto-validate
+          validateAndSaveKey(text.trim());
+        }
+      } catch {
+        // Clipboard access denied - user will paste manually
       }
+    };
 
-      // Show code input UI
-      setShowCodeInput(true);
-    } catch (err) {
-      setError("Failed to start sign in flow");
-      console.error("Sign in error:", err);
-    }
-  };
+    const interval = setInterval(checkClipboard, 1000);
+    return () => clearInterval(interval);
+  }, [clipboardPolling]);
 
-  // Handle code submission
-  const handleSubmitCode = async () => {
-    if (!authCode.trim()) {
-      setError("Please enter the authorization code");
-      return;
-    }
-
-    setIsExchanging(true);
+  // Validate API key with Anthropic
+  const validateAndSaveKey = async (key: string) => {
+    setIsValidating(true);
     setError(null);
 
     try {
-      const result = await exchangeCodeForTokens(authCode.trim(), authState);
+      // Test the key with a minimal request
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": key,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 10,
+          messages: [{ role: "user", content: "Hi" }],
+        }),
+      });
 
-      if (result.success) {
+      if (response.ok || response.status === 400) {
+        // 400 can happen with valid key but bad request - key is valid
+        localStorage.setItem(API_KEY_STORAGE, key);
         setIsAuthed(true);
-        setShowCodeInput(false);
-        setAuthCode("");
+        setShowKeyInput(false);
+        setApiKey("");
+      } else if (response.status === 401) {
+        setError("Invalid API key. Please check and try again.");
       } else {
-        setError(result.error || "Failed to complete sign in");
+        // Other errors - save anyway, user can retry later
+        localStorage.setItem(API_KEY_STORAGE, key);
+        setIsAuthed(true);
       }
     } catch (err) {
-      setError("Failed to exchange code for token");
-      console.error("Code exchange error:", err);
+      // Network error - save anyway
+      localStorage.setItem(API_KEY_STORAGE, key);
+      setIsAuthed(true);
     } finally {
-      setIsExchanging(false);
+      setIsValidating(false);
     }
   };
 
-  // Handle paste from clipboard
+  // Handle connect click - open Anthropic console
+  const handleConnect = async () => {
+    setError(null);
+    const url = "https://console.anthropic.com/settings/keys";
+
+    // Open in system browser
+    if (typeof window !== "undefined" && window.electronAPI?.openExternal) {
+      await window.electronAPI.openExternal(url);
+    } else {
+      window.open(url, "_blank");
+    }
+
+    // Show key input UI and start polling clipboard
+    setShowKeyInput(true);
+    setClipboardPolling(true);
+  };
+
+  // Handle manual paste
   const handlePaste = async () => {
     try {
       const text = await navigator.clipboard.readText();
-      // Try to extract code from URL or just use the text
-      if (text.includes("code=")) {
-        const url = new URL(text);
-        const code = url.searchParams.get("code");
-        const state = url.searchParams.get("state");
-        if (code) {
-          setAuthCode(code);
-          if (state) setAuthState(state);
-        }
-      } else {
-        setAuthCode(text.trim());
+      if (text.trim()) {
+        setApiKey(text.trim());
       }
-    } catch (err) {
-      console.error("Paste error:", err);
+    } catch {
+      // User will type manually
     }
   };
 
-  // Handle sign out
-  const handleSignOut = () => {
-    signOut();
-    setIsAuthed(false);
-    setShowCodeInput(false);
-    setAuthCode("");
-    setError(null);
+  // Handle submit
+  const handleSubmit = () => {
+    if (!apiKey.trim()) {
+      setError("Please enter your API key");
+      return;
+    }
+    if (!apiKey.startsWith("sk-ant-")) {
+      setError("API key should start with sk-ant-");
+      return;
+    }
+    validateAndSaveKey(apiKey.trim());
   };
 
   // Loading state
@@ -165,7 +181,7 @@ export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) =>
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 p-6">
       <AnimatePresence mode="wait">
         <motion.div
-          key={showCodeInput ? "code-input" : "welcome"}
+          key={showKeyInput ? "key-input" : "welcome"}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
@@ -192,26 +208,33 @@ export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) =>
                 </div>
               )}
 
-              {showCodeInput ? (
+              {showKeyInput ? (
                 <>
-                  {/* Code input UI */}
+                  {/* Key input UI */}
                   <div className="space-y-4 mb-6">
                     <div className="flex items-center gap-2 text-white/80 text-sm">
                       <CheckCircle className="w-4 h-4 text-green-400" />
-                      <span>Browser opened - sign in with Claude</span>
+                      <span>Anthropic Console opened</span>
                     </div>
 
-                    <p className="text-white/60 text-sm">
-                      After signing in, copy the authorization code from the page and paste it below:
-                    </p>
+                    <div className="bg-white/5 rounded-lg p-4 space-y-2 text-sm text-white/70">
+                      <p className="font-medium text-white">Quick steps:</p>
+                      <ol className="list-decimal list-inside space-y-1">
+                        <li>Sign in to Anthropic (create free account if needed)</li>
+                        <li>Click <span className="text-primary-300">"Create Key"</span></li>
+                        <li>Copy the key (starts with sk-ant-...)</li>
+                        <li>Paste it below</li>
+                      </ol>
+                    </div>
 
                     <div className="relative">
+                      <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                       <input
-                        type="text"
-                        value={authCode}
-                        onChange={(e) => setAuthCode(e.target.value)}
-                        placeholder="Paste authorization code here..."
-                        className="w-full px-4 py-3 pr-12 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        type="password"
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        placeholder="sk-ant-api03-..."
+                        className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
                       />
                       <button
                         onClick={handlePaste}
@@ -221,6 +244,13 @@ export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) =>
                         <Clipboard className="w-5 h-5" />
                       </button>
                     </div>
+
+                    {clipboardPolling && (
+                      <p className="text-xs text-primary-300 flex items-center gap-2">
+                        <RefreshCw className="w-3 h-3 animate-spin" />
+                        Watching clipboard for API key...
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex gap-3">
@@ -228,19 +258,20 @@ export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) =>
                       variant="secondary"
                       className="flex-1"
                       onClick={() => {
-                        setShowCodeInput(false);
-                        setAuthCode("");
+                        setShowKeyInput(false);
+                        setApiKey("");
                         setError(null);
+                        setClipboardPolling(false);
                       }}
                     >
                       Cancel
                     </Button>
                     <Button
                       className="flex-1 gap-2 bg-gradient-to-r from-primary-500 to-indigo-600 hover:from-primary-600 hover:to-indigo-700"
-                      onClick={handleSubmitCode}
-                      disabled={isExchanging || !authCode.trim()}
+                      onClick={handleSubmit}
+                      disabled={isValidating || !apiKey.trim()}
                     >
-                      {isExchanging ? (
+                      {isValidating ? (
                         <>
                           <RefreshCw className="w-4 h-4 animate-spin" />
                           Connecting...
@@ -252,11 +283,11 @@ export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) =>
                   </div>
 
                   <button
-                    onClick={handleSignIn}
+                    onClick={handleConnect}
                     className="w-full mt-4 text-sm text-white/50 hover:text-white/70 flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="w-4 h-4" />
-                    Open sign in page again
+                    Open Anthropic Console again
                   </button>
                 </>
               ) : (
@@ -268,10 +299,10 @@ export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) =>
                         <Shield className="w-5 h-5 text-primary-400" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-white">Sign in with Claude</h3>
+                        <h3 className="font-medium text-white">Connect with Claude</h3>
                         <p className="text-sm text-white/60 mt-1">
-                          Use your existing Claude account - Free, Pro, or Max.
-                          No API keys needed.
+                          One-time setup: create a free API key at Anthropic.
+                          Takes less than a minute.
                         </p>
                       </div>
                     </div>
@@ -290,19 +321,18 @@ export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) =>
                     </div>
                   </div>
 
-                  {/* Sign in button */}
+                  {/* Connect button */}
                   <Button
                     size="lg"
                     className="w-full gap-2 bg-gradient-to-r from-primary-500 to-indigo-600 hover:from-primary-600 hover:to-indigo-700"
-                    onClick={handleSignIn}
+                    onClick={handleConnect}
                   >
                     <LogIn className="w-5 h-5" />
-                    Sign in with Claude
+                    Connect with Claude
                   </Button>
 
                   <p className="text-xs text-white/40 text-center mt-4">
-                    Sign in with your Google, Apple, or email account.
-                    Works with any Claude subscription.
+                    Free tier available. Your key is stored locally on your device.
                   </p>
                 </>
               )}
@@ -310,7 +340,7 @@ export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) =>
           </Card>
 
           {/* Features preview */}
-          {!showCodeInput && (
+          {!showKeyInput && (
             <div className="mt-8 grid grid-cols-3 gap-4">
               {[
                 { icon: "📄", label: "Analyze Documents" },
