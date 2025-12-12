@@ -1,13 +1,15 @@
 /**
  * AI Service
- * Supports Claude (Anthropic), ChatGPT (OpenAI), and Mistral (coming soon)
+ * Uses Claude OAuth for authentication - no API keys needed!
+ * Also supports ChatGPT (OpenAI) and Mistral (coming soon) with API keys.
  */
+
+import { callClaudeWithOAuth, isAuthenticated as isClaudeAuthenticated, getAccessToken } from "./claude-oauth";
 
 export type AIProvider = "claude" | "openai" | "mistral";
 
 // Storage keys
 const PROVIDER_KEY = "ai_provider";
-const CLAUDE_KEY = "anthropic_api_key";
 const OPENAI_KEY = "openai_api_key";
 const MISTRAL_KEY = "mistral_api_key";
 
@@ -29,61 +31,43 @@ export function setProvider(provider: AIProvider): void {
   localStorage.setItem(PROVIDER_KEY, provider);
 }
 
-// Get/set API keys
+// Get/set API keys (only for non-Claude providers now)
 export function getApiKey(provider?: AIProvider): string | null {
   if (typeof window === "undefined") return null;
   const p = provider || getProvider();
-  const keys = { claude: CLAUDE_KEY, openai: OPENAI_KEY, mistral: MISTRAL_KEY };
+  if (p === "claude") {
+    // Claude uses OAuth now, not API keys
+    return isClaudeAuthenticated() ? "oauth" : null;
+  }
+  const keys = { claude: "", openai: OPENAI_KEY, mistral: MISTRAL_KEY };
   return localStorage.getItem(keys[p]);
 }
 
 export function setApiKey(key: string, provider?: AIProvider): void {
   if (typeof window === "undefined") return;
   const p = provider || getProvider();
-  const keys = { claude: CLAUDE_KEY, openai: OPENAI_KEY, mistral: MISTRAL_KEY };
+  if (p === "claude") return; // Claude uses OAuth
+  const keys = { claude: "", openai: OPENAI_KEY, mistral: MISTRAL_KEY };
   localStorage.setItem(keys[p], key);
 }
 
 export function hasApiKey(provider?: AIProvider): boolean {
+  const p = provider || getProvider();
+  if (p === "claude") return isClaudeAuthenticated();
   return !!getApiKey(provider);
 }
 
 export function clearApiKey(provider?: AIProvider): void {
   if (typeof window === "undefined") return;
   const p = provider || getProvider();
-  const keys = { claude: CLAUDE_KEY, openai: OPENAI_KEY, mistral: MISTRAL_KEY };
+  if (p === "claude") return; // Use signOut() from claude-oauth for Claude
+  const keys = { claude: "", openai: OPENAI_KEY, mistral: MISTRAL_KEY };
   localStorage.removeItem(keys[p]);
 }
 
-// Claude API call
+// Claude API call - now uses OAuth
 async function callClaude(systemPrompt: string, userMessage: string, maxTokens: number): Promise<string> {
-  const apiKey = getApiKey("claude");
-  if (!apiKey) throw new Error("No Claude API key configured");
-
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
-    body: JSON.stringify({
-      model: MODELS.claude,
-      max_tokens: maxTokens,
-      temperature: 0.3,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userMessage }],
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: { message: response.statusText } }));
-    throw new Error(error.error?.message || `Claude API error: ${response.status}`);
-  }
-
-  const data = await response.json();
-  return data.content[0]?.text || "";
+  return callClaudeWithOAuth(systemPrompt, userMessage, maxTokens);
 }
 
 // OpenAI API call
@@ -975,9 +959,10 @@ export const PROVIDERS = [
     id: "claude" as AIProvider,
     name: "Claude",
     company: "Anthropic",
-    description: "Best for legal writing and nuanced understanding",
+    description: "Best for legal writing - sign in with your Claude account",
     available: true,
-    keyPlaceholder: "sk-ant-...",
+    keyPlaceholder: "", // No API key needed - uses OAuth
+    usesOAuth: true,
   },
   {
     id: "openai" as AIProvider,
@@ -986,6 +971,7 @@ export const PROVIDERS = [
     description: "Popular and versatile AI assistant",
     available: true,
     keyPlaceholder: "sk-...",
+    usesOAuth: false,
   },
   {
     id: "mistral" as AIProvider,
@@ -994,5 +980,6 @@ export const PROVIDERS = [
     description: "Coming soon - European AI model",
     available: false,
     keyPlaceholder: "",
+    usesOAuth: false,
   },
 ];

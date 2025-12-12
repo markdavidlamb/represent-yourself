@@ -25,7 +25,7 @@ import { RiskScorecard } from "@/components/views/RiskScorecard";
 import { SettingsView } from "@/components/views/SettingsView";
 import { AIAssistant } from "@/components/views/AIAssistant";
 import { CasesView } from "@/components/views/CasesView";
-import { ClaudeAuthGate } from "@/components/auth/ClaudeAuthGate";
+import { ClaudeOAuthGate } from "@/components/auth/ClaudeOAuthGate";
 import { CaseOnboarding } from "@/components/onboarding/CaseOnboarding";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { hasCompletedSetup, markSetupComplete, CaseData } from "@/lib/case-store";
@@ -331,7 +331,7 @@ export default function Home() {
 
   return (
     <ErrorBoundary>
-      <ClaudeAuthGate>
+      <ClaudeOAuthGate>
         {/* Show onboarding if setup not complete */}
         {!setupComplete ? (
           <CaseOnboarding onComplete={handleOnboardingComplete} />
@@ -368,7 +368,7 @@ export default function Home() {
             />
           </div>
         )}
-      </ClaudeAuthGate>
+      </ClaudeOAuthGate>
     </ErrorBoundary>
   );
 }

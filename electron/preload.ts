@@ -15,6 +15,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   saveFile: (options?: { defaultPath?: string; filters?: { name: string; extensions: string[] }[] }) =>
     ipcRenderer.invoke("save-file", options),
 
+  // Open external URL in system browser
+  openExternal: (url: string) => ipcRenderer.invoke("open-external", url),
+
   // Navigation events from menu
   onNavigate: (callback: (view: string) => void) => {
     ipcRenderer.on("navigate", (_event, view) => callback(view));
@@ -84,6 +87,9 @@ declare global {
       // File operations
       selectFile: (options?: { filters?: { name: string; extensions: string[] }[] }) => Promise<string | undefined>;
       saveFile: (options?: { defaultPath?: string; filters?: { name: string; extensions: string[] }[] }) => Promise<string | undefined>;
+
+      // Open external URL in system browser
+      openExternal: (url: string) => Promise<void>;
 
       // Navigation
       onNavigate: (callback: (view: string) => void) => void;

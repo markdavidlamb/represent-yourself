@@ -276,6 +276,11 @@ ipcMain.handle("save-file", async (_event, options) => {
   return result.filePath;
 });
 
+// Open external URL in system browser
+ipcMain.handle("open-external", async (_event, url: string) => {
+  await shell.openExternal(url);
+});
+
 // App lifecycle
 app.whenReady().then(() => {
   registerProtocol();
