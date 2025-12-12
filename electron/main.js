@@ -295,6 +295,10 @@ electron_1.ipcMain.handle("save-file", async (_event, options) => {
     });
     return result.filePath;
 });
+// Open external URL in system browser
+electron_1.ipcMain.handle("open-external", async (_event, url) => {
+    await electron_1.shell.openExternal(url);
+});
 // App lifecycle
 electron_1.app.whenReady().then(() => {
     registerProtocol();

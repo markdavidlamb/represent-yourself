@@ -3,6 +3,8 @@
  * Supports Claude (Anthropic), ChatGPT (OpenAI), and Mistral (coming soon)
  */
 
+import { getStoredToken as getOAuthToken } from "./claude-oauth";
+
 export type AIProvider = "claude" | "openai" | "mistral";
 
 // Storage keys
@@ -45,6 +47,11 @@ export function setApiKey(key: string, provider?: AIProvider): void {
 }
 
 export function hasApiKey(provider?: AIProvider): boolean {
+  const p = provider || getProvider();
+  // For Claude, also check OAuth token
+  if (p === "claude") {
+    return !!getOAuthToken() || !!getApiKey("claude");
+  }
   return !!getApiKey(provider);
 }
 
@@ -57,17 +64,30 @@ export function clearApiKey(provider?: AIProvider): void {
 
 // Claude API call
 async function callClaude(systemPrompt: string, userMessage: string, maxTokens: number): Promise<string> {
+  // Check for OAuth token first, then fall back to API key
+  const oauthToken = getOAuthToken();
   const apiKey = getApiKey("claude");
-  if (!apiKey) throw new Error("No Claude API key configured");
+
+  if (!oauthToken && !apiKey) {
+    throw new Error("No Claude authentication found. Please sign in with Claude or add an API key.");
+  }
+
+  // Build headers based on auth method
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "anthropic-version": "2023-06-01",
+    "anthropic-dangerous-direct-browser-access": "true",
+  };
+
+  if (oauthToken) {
+    headers["Authorization"] = `Bearer ${oauthToken}`;
+  } else if (apiKey) {
+    headers["x-api-key"] = apiKey;
+  }
 
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
+    headers,
     body: JSON.stringify({
       model: MODELS.claude,
       max_tokens: maxTokens,

@@ -11,6 +11,8 @@ electron_1.contextBridge.exposeInMainWorld("electronAPI", {
     // File operations
     selectFile: (options) => electron_1.ipcRenderer.invoke("select-file", options),
     saveFile: (options) => electron_1.ipcRenderer.invoke("save-file", options),
+    // Open external URL in system browser
+    openExternal: (url) => electron_1.ipcRenderer.invoke("open-external", url),
     // Navigation events from menu
     onNavigate: (callback) => {
         electron_1.ipcRenderer.on("navigate", (_event, view) => callback(view));
