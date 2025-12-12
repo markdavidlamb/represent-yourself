@@ -27,6 +27,7 @@ import { AIAssistant } from "@/components/views/AIAssistant";
 import { CasesView } from "@/components/views/CasesView";
 import { ClaudeAuthGate } from "@/components/auth/ClaudeAuthGate";
 import { CaseOnboarding } from "@/components/onboarding/CaseOnboarding";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { hasCompletedSetup, markSetupComplete, CaseData } from "@/lib/case-store";
 import { cn } from "@/lib/utils";
 
@@ -329,43 +330,45 @@ export default function Home() {
   }
 
   return (
-    <ClaudeAuthGate>
-      {/* Show onboarding if setup not complete */}
-      {!setupComplete ? (
-        <CaseOnboarding onComplete={handleOnboardingComplete} />
-      ) : (
-        <div className="flex h-screen bg-neutral-50">
-          {/* Sidebar */}
-          <Sidebar
-            activeItem={activeView}
-            onItemSelect={handleSidebarSelect}
-            collapsed={sidebarCollapsed}
-            onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-          />
+    <ErrorBoundary>
+      <ClaudeAuthGate>
+        {/* Show onboarding if setup not complete */}
+        {!setupComplete ? (
+          <CaseOnboarding onComplete={handleOnboardingComplete} />
+        ) : (
+          <div className="flex h-screen bg-neutral-50">
+            {/* Sidebar */}
+            <Sidebar
+              activeItem={activeView}
+              onItemSelect={handleSidebarSelect}
+              collapsed={sidebarCollapsed}
+              onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+            />
 
-          {/* Main Content */}
-          <main className="flex-1 overflow-y-auto">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeView}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
-              >
-                {renderView()}
-              </motion.div>
-            </AnimatePresence>
-          </main>
+            {/* Main Content */}
+            <main className="flex-1 overflow-y-auto">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeView}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  {renderView()}
+                </motion.div>
+              </AnimatePresence>
+            </main>
 
-          {/* Command Palette */}
-          <CommandPalette
-            open={commandPaletteOpen}
-            onOpenChange={setCommandPaletteOpen}
-            onSelect={handleCommandSelect}
-          />
-        </div>
-      )}
-    </ClaudeAuthGate>
+            {/* Command Palette */}
+            <CommandPalette
+              open={commandPaletteOpen}
+              onOpenChange={setCommandPaletteOpen}
+              onSelect={handleCommandSelect}
+            />
+          </div>
+        )}
+      </ClaudeAuthGate>
+    </ErrorBoundary>
   );
 }
