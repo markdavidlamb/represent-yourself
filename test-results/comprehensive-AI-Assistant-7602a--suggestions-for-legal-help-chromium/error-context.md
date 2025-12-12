@@ -1,0 +1,162 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - generic [ref=e11]:
+            - heading "Represent Yourself" [level=1] [ref=e12]
+            - paragraph [ref=e13]: Legal Assistant
+        - button [ref=e14] [cursor=pointer]:
+          - img [ref=e15]
+      - button "New Document" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e21]: New Document
+      - navigation [ref=e22]:
+        - generic [ref=e23]:
+          - button "Dashboard" [ref=e25] [cursor=pointer]:
+            - img [ref=e27]
+            - generic [ref=e32]: Dashboard
+          - button "Legal GPS New" [ref=e34] [cursor=pointer]:
+            - img [ref=e36]
+            - generic [ref=e39]: Legal GPS
+            - generic [ref=e40]: New
+          - button "Case Analyzer AI" [ref=e42] [cursor=pointer]:
+            - img [ref=e44]
+            - generic [ref=e47]: Case Analyzer
+            - generic [ref=e48]: AI
+          - button "My Cases 3" [ref=e50] [cursor=pointer]:
+            - img [ref=e52]
+            - generic [ref=e54]: My Cases
+            - generic [ref=e55]: "3"
+          - button "Documents" [ref=e57] [cursor=pointer]:
+            - img [ref=e59]
+            - generic [ref=e62]: Documents
+            - img [ref=e63]
+          - button "Document Generator" [ref=e66] [cursor=pointer]:
+            - img [ref=e68]
+            - generic [ref=e72]: Document Generator
+          - button "Timeline" [ref=e74] [cursor=pointer]:
+            - img [ref=e76]
+            - generic [ref=e79]: Timeline
+          - button "Deadlines 2 due" [ref=e81] [cursor=pointer]:
+            - img [ref=e83]
+            - generic [ref=e85]: Deadlines
+            - generic [ref=e86]: 2 due
+          - button "Discovery Helper" [ref=e88] [cursor=pointer]:
+            - img [ref=e90]
+            - generic [ref=e93]: Discovery Helper
+          - button "Argument Map" [ref=e95] [cursor=pointer]:
+            - img [ref=e97]
+            - generic [ref=e98]: Argument Map
+          - button "Court Rules" [ref=e100] [cursor=pointer]:
+            - img [ref=e102]
+            - generic [ref=e105]: Court Rules
+          - button "Hearing Prep" [ref=e107] [cursor=pointer]:
+            - img [ref=e109]
+            - generic [ref=e112]: Hearing Prep
+          - button "Hearing Simulator AI" [ref=e114] [cursor=pointer]:
+            - img [ref=e116]
+            - generic [ref=e119]: Hearing Simulator
+            - generic [ref=e120]: AI
+          - button "Opponent Intel" [ref=e122] [cursor=pointer]:
+            - img [ref=e124]
+            - generic [ref=e129]: Opponent Intel
+          - button "Settlement Calculator" [ref=e131] [cursor=pointer]:
+            - img [ref=e133]
+            - generic [ref=e135]: Settlement Calculator
+          - button "Bundle Generator" [ref=e137] [cursor=pointer]:
+            - img [ref=e139]
+            - generic [ref=e142]: Bundle Generator
+          - button "Risk Scorecard AI" [ref=e144] [cursor=pointer]:
+            - img [ref=e146]
+            - generic [ref=e148]: Risk Scorecard
+            - generic [ref=e149]: AI
+          - button "Cost Calculator" [ref=e151] [cursor=pointer]:
+            - img [ref=e153]
+            - generic [ref=e155]: Cost Calculator
+      - generic [ref=e157]:
+        - button "AI Assistant /" [ref=e159] [cursor=pointer]:
+          - img [ref=e161]
+          - generic [ref=e163]: AI Assistant
+          - generic [ref=e166]: /
+        - button "Help & Guide" [ref=e168] [cursor=pointer]:
+          - img [ref=e170]
+          - generic [ref=e173]: Help & Guide
+        - button "Settings" [ref=e175] [cursor=pointer]:
+          - img [ref=e177]
+          - generic [ref=e180]: Settings
+      - generic [ref=e182] [cursor=pointer]:
+        - generic [ref=e183]: U
+        - generic [ref=e184]:
+          - paragraph [ref=e185]: User
+          - paragraph [ref=e186]: Free Plan
+    - main [ref=e187]:
+      - generic [ref=e189]:
+        - generic [ref=e190]:
+          - img [ref=e192]
+          - generic [ref=e194]:
+            - heading "AI Legal Assistant" [level=1] [ref=e195]
+            - paragraph [ref=e196]: Powered by Claude
+        - generic [ref=e197]:
+          - generic [ref=e200]:
+            - img [ref=e202]
+            - heading "Chat with Claude AI" [level=2] [ref=e204]
+            - paragraph [ref=e205]: Get AI-powered help understanding legal documents, drafting responses, and navigating court procedures. Just sign in with your free or paid Claude account.
+            - button "Open Claude AI" [ref=e206] [cursor=pointer]:
+              - img [ref=e207]
+              - text: Open Claude AI
+            - paragraph [ref=e209]: No API key needed - just sign in with Google, email, or Apple
+          - generic [ref=e210]:
+            - heading "Suggested Prompts for Legal Help" [level=3] [ref=e211]
+            - paragraph [ref=e212]: "Copy these prompts to use in your Claude conversation:"
+          - generic [ref=e213]:
+            - generic [ref=e217] [cursor=pointer]:
+              - generic [ref=e218]: 📄
+              - generic [ref=e219]:
+                - heading "Explain a Document" [level=4] [ref=e220]
+                - paragraph [ref=e221]: "Please explain this legal document in plain English: [paste your document]"
+                - paragraph [ref=e222]: Click to copy prompt
+            - generic [ref=e226] [cursor=pointer]:
+              - generic [ref=e227]: ✍️
+              - generic [ref=e228]:
+                - heading "Draft a Response" [level=4] [ref=e229]
+                - paragraph [ref=e230]: "Help me draft a response to a court filing. The situation is: [describe your case]"
+                - paragraph [ref=e231]: Click to copy prompt
+            - generic [ref=e235] [cursor=pointer]:
+              - generic [ref=e236]: 📋
+              - generic [ref=e237]:
+                - heading "Understand Procedure" [level=4] [ref=e238]
+                - paragraph [ref=e239]: Explain the court procedure for [your jurisdiction] when [describe what you need to do]
+                - paragraph [ref=e240]: Click to copy prompt
+            - generic [ref=e244] [cursor=pointer]:
+              - generic [ref=e245]: 📅
+              - generic [ref=e246]:
+                - heading "Calculate Deadlines" [level=4] [ref=e247]
+                - paragraph [ref=e248]: Help me calculate court deadlines. The relevant date is [date] and I need to file [document type]
+                - paragraph [ref=e249]: Click to copy prompt
+            - generic [ref=e253] [cursor=pointer]:
+              - generic [ref=e254]: ⚖️
+              - generic [ref=e255]:
+                - heading "Prepare for Hearing" [level=4] [ref=e256]
+                - paragraph [ref=e257]: Help me prepare for a hearing about [describe the hearing]. What should I expect and prepare?
+                - paragraph [ref=e258]: Click to copy prompt
+            - generic [ref=e262] [cursor=pointer]:
+              - generic [ref=e263]: 🔍
+              - generic [ref=e264]:
+                - heading "Analyze Arguments" [level=4] [ref=e265]
+                - paragraph [ref=e266]: "Analyze the strengths and weaknesses of this legal argument: [describe the argument]"
+                - paragraph [ref=e267]: Click to copy prompt
+        - paragraph [ref=e269]:
+          - strong [ref=e270]: "Note:"
+          - text: AI responses are for guidance only. Always verify important legal information with qualified professionals or official court resources.
+  - alert [ref=e271]
+  - generic [ref=e274] [cursor=pointer]:
+    - img [ref=e275]
+    - generic [ref=e277]: 2 errors
+    - button "Hide Errors" [ref=e278]:
+      - img [ref=e279]
+```

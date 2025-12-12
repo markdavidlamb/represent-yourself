@@ -1,0 +1,430 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - generic [ref=e11]:
+            - heading "Represent Yourself" [level=1] [ref=e12]
+            - paragraph [ref=e13]: Legal Assistant
+        - button [ref=e14] [cursor=pointer]:
+          - img [ref=e15]
+      - button "New Document" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e21]: New Document
+      - navigation [ref=e22]:
+        - generic [ref=e23]:
+          - button "Dashboard" [ref=e25] [cursor=pointer]:
+            - img [ref=e27]
+            - generic [ref=e32]: Dashboard
+          - button "Legal GPS New" [ref=e34] [cursor=pointer]:
+            - img [ref=e36]
+            - generic [ref=e39]: Legal GPS
+            - generic [ref=e40]: New
+          - button "Case Analyzer AI" [ref=e42] [cursor=pointer]:
+            - img [ref=e44]
+            - generic [ref=e47]: Case Analyzer
+            - generic [ref=e48]: AI
+          - button "My Cases 3" [ref=e50] [cursor=pointer]:
+            - img [ref=e52]
+            - generic [ref=e54]: My Cases
+            - generic [ref=e55]: "3"
+          - generic [ref=e56]:
+            - button "Documents" [ref=e57] [cursor=pointer]:
+              - img [ref=e59]
+              - generic [ref=e62]: Documents
+              - img [ref=e63]
+            - generic [ref=e66]:
+              - button "All Documents" [ref=e68] [cursor=pointer]:
+                - img [ref=e70]
+                - generic [ref=e73]: All Documents
+              - button "Drafts 2" [ref=e75] [cursor=pointer]:
+                - img [ref=e77]
+                - generic [ref=e80]: Drafts
+                - generic [ref=e81]: "2"
+              - button "Filed" [ref=e83] [cursor=pointer]:
+                - img [ref=e85]
+                - generic [ref=e88]: Filed
+              - button "Evidence" [ref=e90] [cursor=pointer]:
+                - img [ref=e92]
+                - generic [ref=e95]: Evidence
+          - button "Document Generator" [ref=e97] [cursor=pointer]:
+            - img [ref=e99]
+            - generic [ref=e103]: Document Generator
+          - button "Timeline" [ref=e105] [cursor=pointer]:
+            - img [ref=e107]
+            - generic [ref=e110]: Timeline
+          - button "Deadlines 2 due" [ref=e112] [cursor=pointer]:
+            - img [ref=e114]
+            - generic [ref=e116]: Deadlines
+            - generic [ref=e117]: 2 due
+          - button "Discovery Helper" [ref=e119] [cursor=pointer]:
+            - img [ref=e121]
+            - generic [ref=e124]: Discovery Helper
+          - button "Argument Map" [ref=e126] [cursor=pointer]:
+            - img [ref=e128]
+            - generic [ref=e129]: Argument Map
+          - button "Court Rules" [ref=e131] [cursor=pointer]:
+            - img [ref=e133]
+            - generic [ref=e136]: Court Rules
+          - button "Hearing Prep" [ref=e138] [cursor=pointer]:
+            - img [ref=e140]
+            - generic [ref=e143]: Hearing Prep
+          - button "Hearing Simulator AI" [ref=e145] [cursor=pointer]:
+            - img [ref=e147]
+            - generic [ref=e150]: Hearing Simulator
+            - generic [ref=e151]: AI
+          - button "Opponent Intel" [ref=e153] [cursor=pointer]:
+            - img [ref=e155]
+            - generic [ref=e160]: Opponent Intel
+          - button "Settlement Calculator" [ref=e162] [cursor=pointer]:
+            - img [ref=e164]
+            - generic [ref=e166]: Settlement Calculator
+          - button "Bundle Generator" [ref=e168] [cursor=pointer]:
+            - img [ref=e170]
+            - generic [ref=e173]: Bundle Generator
+          - button "Risk Scorecard AI" [ref=e175] [cursor=pointer]:
+            - img [ref=e177]
+            - generic [ref=e179]: Risk Scorecard
+            - generic [ref=e180]: AI
+          - button "Cost Calculator" [ref=e182] [cursor=pointer]:
+            - img [ref=e184]
+            - generic [ref=e186]: Cost Calculator
+      - generic [ref=e188]:
+        - button "AI Assistant" [ref=e190] [cursor=pointer]:
+          - img [ref=e192]
+          - generic [ref=e194]: AI Assistant
+        - button "Help & Guide" [ref=e196] [cursor=pointer]:
+          - img [ref=e198]
+          - generic [ref=e201]: Help & Guide
+        - button "Settings" [ref=e203] [cursor=pointer]:
+          - img [ref=e205]
+          - generic [ref=e208]: Settings
+      - generic [ref=e210] [cursor=pointer]:
+        - generic [ref=e211]: U
+        - generic [ref=e212]:
+          - paragraph [ref=e213]: User
+          - paragraph [ref=e214]: Free Plan
+    - main [ref=e215]:
+      - generic [ref=e217]:
+        - generic [ref=e218]:
+          - generic [ref=e222]:
+            - generic [ref=e223]:
+              - generic [ref=e224]:
+                - generic [ref=e225]: Active Litigation
+                - heading "HCA 1646/2023" [level=1] [ref=e226]
+                - paragraph [ref=e227]: High Court of Hong Kong, Court of First Instance
+                - generic [ref=e228]:
+                  - img [ref=e229]
+                  - generic [ref=e235]: "Judge: DHCJ Grace Chow"
+              - generic [ref=e236]:
+                - paragraph [ref=e237]: Your Role
+                - paragraph [ref=e238]: 1st Defendant
+                - generic [ref=e239]: Self-Represented
+            - generic [ref=e240]:
+              - generic [ref=e241]:
+                - paragraph [ref=e242]: Victories
+                - paragraph [ref=e243]: "2"
+                - paragraph [ref=e244]: Kent Yee rulings
+              - generic [ref=e245]:
+                - paragraph [ref=e246]: Pending
+                - paragraph [ref=e247]: "4"
+                - paragraph [ref=e248]: Applications
+              - generic [ref=e249]:
+                - paragraph [ref=e250]: Related
+                - paragraph [ref=e251]: "1"
+                - paragraph [ref=e252]: HCMP 2344/2025
+          - generic [ref=e255]:
+            - img [ref=e256]
+            - paragraph [ref=e259]: Next Hearing
+            - paragraph [ref=e260]: "41"
+            - paragraph [ref=e261]: days remaining
+            - generic [ref=e262]:
+              - paragraph [ref=e263]: Thursday, 22 January 2026
+              - paragraph [ref=e264]: Before DHCJ Grace Chow
+        - generic [ref=e267]:
+          - generic [ref=e268]:
+            - img [ref=e270]
+            - generic [ref=e272]:
+              - heading "High Priority Actions Required" [level=3] [ref=e273]
+              - paragraph [ref=e274]: 3 items need your attention before Jan 22
+          - generic [ref=e275]:
+            - button "Committal Hearing Jan 22, 2026" [ref=e276] [cursor=pointer]:
+              - img [ref=e278]
+              - generic [ref=e281]:
+                - paragraph [ref=e282]: Committal
+                - paragraph [ref=e283]: Hearing Jan 22, 2026
+              - img [ref=e284]
+            - button "Summary Judgment File opposition" [ref=e286] [cursor=pointer]:
+              - img [ref=e288]
+              - generic [ref=e290]:
+                - paragraph [ref=e291]: Summary Judgment
+                - paragraph [ref=e292]: File opposition
+              - img [ref=e293]
+            - button "O.5 r.6 Company Representation File application" [ref=e295] [cursor=pointer]:
+              - img [ref=e297]
+              - generic [ref=e299]:
+                - paragraph [ref=e300]: O.5 r.6 Company Representation
+                - paragraph [ref=e301]: File application
+              - img [ref=e302]
+        - generic [ref=e304]:
+          - generic [ref=e306]:
+            - generic [ref=e308]:
+              - img [ref=e310]
+              - generic [ref=e314]:
+                - heading "Applications Status" [level=3] [ref=e315]
+                - paragraph [ref=e316]: Current applications and their status
+            - generic [ref=e318]:
+              - generic [ref=e319]:
+                - img [ref=e321]
+                - generic [ref=e323]:
+                  - generic [ref=e324]:
+                    - heading "Committal" [level=4] [ref=e325]
+                    - generic [ref=e326]: Pending
+                  - paragraph [ref=e327]: Summons to Dismiss filed
+                  - paragraph [ref=e328]: "Filed by: Plaintiffs"
+                - generic [ref=e329]:
+                  - paragraph [ref=e330]: Next Step
+                  - paragraph [ref=e331]: Hearing Jan 22, 2026
+              - generic [ref=e332]:
+                - img [ref=e334]
+                - generic [ref=e340]:
+                  - generic [ref=e341]:
+                    - heading "Summary Judgment" [level=4] [ref=e342]
+                    - generic [ref=e343]: New (Dec 2025)
+                  - paragraph [ref=e344]: Opposition needed
+                  - paragraph [ref=e345]: "Filed by: Plaintiffs"
+                - generic [ref=e346]:
+                  - paragraph [ref=e347]: Next Step
+                  - paragraph [ref=e348]: File opposition
+              - generic [ref=e349]:
+                - img [ref=e351]
+                - generic [ref=e353]:
+                  - generic [ref=e354]:
+                    - heading "Security for Costs" [level=4] [ref=e355]
+                    - generic [ref=e356]: Pending
+                  - paragraph [ref=e357]: Seeking HK$15.1M security
+                  - paragraph [ref=e358]: "Filed by: Mark (D1)"
+                - generic [ref=e359]:
+                  - paragraph [ref=e360]: Next Step
+                  - paragraph [ref=e361]: Hearing Jan 22, 2026
+              - generic [ref=e362]:
+                - img [ref=e364]
+                - generic [ref=e367]:
+                  - generic [ref=e368]:
+                    - heading "O.5 r.6 Company Representation" [level=4] [ref=e369]
+                    - generic [ref=e370]: TO DO
+                  - paragraph [ref=e371]: Need to apply to represent D3/D4
+                  - paragraph [ref=e372]: "Filed by: To be filed by Mark"
+                - generic [ref=e373]:
+                  - paragraph [ref=e374]: Next Step
+                  - paragraph [ref=e375]: File application
+          - generic [ref=e376]:
+            - generic [ref=e377]:
+              - generic [ref=e379]:
+                - img [ref=e381]
+                - heading "Your Strengths" [level=3] [ref=e385]
+              - list [ref=e387]:
+                - listitem [ref=e388]:
+                  - img [ref=e389]
+                  - generic [ref=e392]: Strong factual defenses (pre-injunction acts, service issues)
+                - listitem [ref=e393]:
+                  - img [ref=e394]
+                  - generic [ref=e397]: Cooperation throughout proceedings (11 affirmations filed, attended hearings)
+                - listitem [ref=e398]:
+                  - img [ref=e399]
+                  - generic [ref=e402]: Offered mediation in Feb 2025 - REFUSED by Applicants
+                - listitem [ref=e403]:
+                  - img [ref=e404]
+                  - generic [ref=e407]: Kent Yee's decisions are powerful precedent ('untenable', 'unreasonable')
+            - generic [ref=e408]:
+              - generic [ref=e410]:
+                - img [ref=e412]
+                - heading "Their Weaknesses" [level=3] [ref=e416]
+              - list [ref=e418]:
+                - listitem [ref=e419]:
+                  - img [ref=e420]
+                  - generic [ref=e424]: Court found them 'unreasonable' and 'untenable' TWICE
+                - listitem [ref=e425]:
+                  - img [ref=e426]
+                  - generic [ref=e430]: Evidence is weak (hearsay, speculation, unauthenticated recordings)
+                - listitem [ref=e431]:
+                  - img [ref=e432]
+                  - generic [ref=e436]: Most alleged breaches pre-date the injunction
+                - listitem [ref=e437]:
+                  - img [ref=e438]
+                  - generic [ref=e442]: 25-month delay suggests tactical motivation
+            - generic [ref=e443]:
+              - generic [ref=e445]:
+                - img [ref=e447]
+                - heading "Financial Summary" [level=3] [ref=e450]
+              - generic [ref=e452]:
+                - generic [ref=e453]:
+                  - generic [ref=e454]: Security Sought
+                  - generic [ref=e455]: HK$15.1M
+                - generic [ref=e456]:
+                  - generic [ref=e457]: Legal Fees (Hauzen)
+                  - generic [ref=e458]: HK$389K
+                - generic [ref=e459]:
+                  - generic [ref=e460]: Outstanding
+                  - generic [ref=e461]: HK$148K
+        - generic [ref=e463]:
+          - generic [ref=e465]:
+            - img [ref=e467]
+            - generic [ref=e471]:
+              - heading "Litigation History" [level=3] [ref=e472]
+              - paragraph [ref=e473]: Pattern of escalation by Plaintiffs
+          - generic [ref=e475]:
+            - generic [ref=e476]:
+              - generic [ref=e477]: "1"
+              - img [ref=e479]
+              - generic [ref=e485]:
+                - paragraph [ref=e486]: September 2024
+                - heading "Default Judgment Attempt" [level=4] [ref=e487]
+                - paragraph [ref=e488]: Get judgment claiming Mark hadn't responded to service
+                - generic [ref=e489]: FAILED
+                - paragraph [ref=e490]: "\"Arguments were 'novel and without any evidential b...\""
+            - generic [ref=e491]:
+              - generic [ref=e492]: "2"
+              - generic [ref=e493]:
+                - paragraph [ref=e494]: February 2025
+                - heading "Appeal of Default Judgment Failure" [level=4] [ref=e495]
+                - paragraph [ref=e496]: Appeal Kent Yee's jurisdiction decision, vary costs, get leave to appeal
+                - generic [ref=e497]: FAILED - All applications dismissed, costs to Mark
+                - paragraph [ref=e498]: "\"This ground is 'thoroughly untenable'...\""
+            - generic [ref=e499]:
+              - generic [ref=e500]: "3"
+              - generic [ref=e501]:
+                - paragraph [ref=e502]: November 2025
+                - heading "Committal/Imprisonment Attempt" [level=4] [ref=e503]
+                - paragraph [ref=e504]: Imprison Mark (and Leslie) for alleged contempt of injunction
+                - generic [ref=e505]: PENDING
+            - generic [ref=e506]:
+              - generic [ref=e507]: "4"
+              - generic [ref=e508]:
+                - paragraph [ref=e509]: December 2025
+                - heading "Summary Judgment Attempt" [level=4] [ref=e510]
+                - paragraph [ref=e511]: Win without trial by claiming no factual disputes exist
+                - generic [ref=e512]: PENDING
+        - generic [ref=e514]:
+          - generic [ref=e516]:
+            - img [ref=e518]
+            - generic [ref=e523]:
+              - heading "Parties" [level=3] [ref=e524]
+              - paragraph [ref=e525]: All parties in HCA 1646/2023
+          - generic [ref=e527]:
+            - generic [ref=e528]:
+              - heading "Plaintiffs" [level=4] [ref=e529]
+              - generic [ref=e530]:
+                - generic [ref=e531]:
+                  - generic [ref=e532]:
+                    - generic [ref=e533]: Liquidity Technologies Ltd
+                    - generic [ref=e534]: 1st Plaintiff
+                  - paragraph [ref=e535]: "Jurisdiction: BVI"
+                  - paragraph [ref=e536]: "Controlled by: Kirill Gourov, Mark Komaransky, Samuel Wincent"
+                - generic [ref=e537]:
+                  - generic [ref=e538]:
+                    - generic [ref=e539]: Liquidity Technologies Software Limited
+                    - generic [ref=e540]: 2nd Plaintiff
+                  - paragraph [ref=e541]: "Jurisdiction: BVI"
+                  - paragraph [ref=e542]: "Controlled by: Kirill Gourov, Mark Komaransky, Samuel Wincent"
+                - generic [ref=e543]:
+                  - paragraph [ref=e544]: Solicitors
+                  - paragraph [ref=e545]: Tanner De Witt
+                  - paragraph [ref=e546]: "Partner: Douglas Clark"
+            - generic [ref=e547]:
+              - heading "Defendants" [level=4] [ref=e548]
+              - generic [ref=e549]:
+                - generic [ref=e550]:
+                  - generic [ref=e551]:
+                    - generic [ref=e552]: Mark David Lamb(You)
+                    - generic [ref=e553]: 1st Defendant (D1)
+                  - paragraph [ref=e554]: "Status: Active"
+                  - paragraph [ref=e555]: "Represented: Self-represented"
+                - generic [ref=e556]:
+                  - generic [ref=e557]:
+                    - generic [ref=e558]: Roger Keith Ver
+                    - generic [ref=e559]: 2nd Defendant (D2)
+                  - paragraph [ref=e560]: "Status: Discontinued"
+                - generic [ref=e561]:
+                  - generic [ref=e562]:
+                    - generic [ref=e563]: Open Technologies Holding Limited (OTHL)
+                    - generic [ref=e564]: 3rd Defendant (D3)
+                  - paragraph [ref=e565]: "Status: Active"
+                  - paragraph [ref=e566]: Need O.5 r.6 application to represent
+                - generic [ref=e567]:
+                  - generic [ref=e568]:
+                    - generic [ref=e569]: Open Technology Markets Ltd (OTML)
+                    - generic [ref=e570]: 4th Defendant (D4)
+                  - paragraph [ref=e571]: "Status: Active"
+                  - paragraph [ref=e572]: Need O.5 r.6 application to represent
+        - generic [ref=e574]:
+          - generic [ref=e576]:
+            - img [ref=e578]
+            - generic [ref=e580]:
+              - heading "Case Timeline" [level=3] [ref=e581]
+              - paragraph [ref=e582]: Key events in chronological order
+          - generic [ref=e586]:
+            - generic [ref=e589]:
+              - generic [ref=e590]:
+                - generic [ref=e591]: 19 Feb 2025
+                - generic [ref=e592]: Victory
+              - paragraph [ref=e593]: DHCJ Kent Yee dismisses appeal
+            - generic [ref=e596]:
+              - generic [ref=e598]: 25 Feb 2025
+              - paragraph [ref=e599]: D1 Defence filed
+            - generic [ref=e602]:
+              - generic [ref=e604]: 27 Feb 2025
+              - paragraph [ref=e605]: Mediation offer sent
+            - generic [ref=e608]:
+              - generic [ref=e610]: 12 Jun 2025
+              - paragraph [ref=e611]: Plaintiffs file Summary Judgment Summons
+            - generic [ref=e614]:
+              - generic [ref=e616]: 9 Jul 2025
+              - paragraph [ref=e617]: D1 files Security for Costs Summons
+            - generic [ref=e620]:
+              - generic [ref=e622]: 11 Jul 2025
+              - paragraph [ref=e623]: Mark finally served with injunction (25 months late)
+            - generic [ref=e626]:
+              - generic [ref=e628]: 21 Nov 2025
+              - paragraph [ref=e629]: Leave granted for committal (ex parte)
+            - generic [ref=e632]:
+              - generic [ref=e634]: 24 Nov 2025
+              - paragraph [ref=e635]: DHCJ Grace Chow directions
+            - generic [ref=e638]:
+              - generic [ref=e640]: 28 Nov 2025
+              - paragraph [ref=e641]: Committal papers served
+            - generic [ref=e644]:
+              - generic [ref=e646]: 2 Dec 2025
+              - paragraph [ref=e647]: Mark files Acknowledgment of Service (HCMP 2344)
+            - generic [ref=e650]:
+              - generic [ref=e652]: 9 Dec 2025
+              - paragraph [ref=e653]: Mark files Summons to Dismiss Committal
+            - generic [ref=e656]:
+              - generic [ref=e657]:
+                - generic [ref=e658]: 22 Jan 2026
+                - generic [ref=e659]: Upcoming
+              - paragraph [ref=e660]: NEXT HEARING before Grace Chow
+        - generic [ref=e661]:
+          - button "Draft Document" [ref=e662] [cursor=pointer]:
+            - img [ref=e663]
+            - generic [ref=e666]: Draft Document
+          - button "View Evidence" [ref=e667] [cursor=pointer]:
+            - img [ref=e668]
+            - generic [ref=e671]: View Evidence
+          - button "AI Assistant" [ref=e672] [cursor=pointer]:
+            - img [ref=e673]
+            - generic [ref=e677]: AI Assistant
+          - button "Deadlines" [ref=e678] [cursor=pointer]:
+            - img [ref=e679]
+            - generic [ref=e681]: Deadlines
+  - alert [ref=e682]
+  - generic [ref=e685] [cursor=pointer]:
+    - img [ref=e686]
+    - generic [ref=e688]: 2 errors
+    - button "Hide Errors" [ref=e689]:
+      - img [ref=e690]
+```
