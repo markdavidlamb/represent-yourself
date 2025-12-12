@@ -64,15 +64,32 @@ export const ClaudeOAuthGate: React.FC<ClaudeOAuthGateProps> = ({ children }) =>
     try {
       const { url } = await getAuthorizationUrl();
 
-      // Open in system browser
+      // Open in system browser - try multiple methods
+      let opened = false;
+
+      // Try Electron API first
       if (typeof window !== "undefined" && window.electronAPI?.openExternal) {
-        await window.electronAPI.openExternal(url);
-      } else {
-        window.open(url, "_blank");
+        try {
+          await window.electronAPI.openExternal(url);
+          opened = true;
+        } catch (e) {
+          console.error("Electron openExternal failed:", e);
+        }
+      }
+
+      // Fallback to window.open
+      if (!opened) {
+        const newWindow = window.open(url, "_blank");
+        if (!newWindow) {
+          // If popup blocked, show the URL to copy
+          setError(`Please open this URL manually: ${url}`);
+          return;
+        }
       }
 
       setAuthMode("oauth-pending");
     } catch (err) {
+      console.error("OAuth start error:", err);
       setError("Failed to start authentication. Please try again.");
     }
   };
