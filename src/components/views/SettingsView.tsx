@@ -22,23 +22,23 @@ import {
 export const SettingsView: React.FC = () => {
   const [selectedProvider, setSelectedProvider] = React.useState<AIProvider>(getProvider());
   const [apiKeys, setApiKeys] = React.useState<Record<AIProvider, string>>({
+    gemini: "",
     claude: "",
     openai: "",
-    mistral: "",
   });
   const [showKeys, setShowKeys] = React.useState<Record<AIProvider, boolean>>({
+    gemini: false,
     claude: false,
     openai: false,
-    mistral: false,
   });
   const [savedStatus, setSavedStatus] = React.useState<string | null>(null);
 
   // Load saved keys on mount
   React.useEffect(() => {
     setApiKeys({
+      gemini: getApiKey("gemini") || "",
       claude: getApiKey("claude") || "",
       openai: getApiKey("openai") || "",
-      mistral: getApiKey("mistral") || "",
     });
     setSelectedProvider(getProvider());
   }, []);
@@ -114,15 +114,15 @@ export const SettingsView: React.FC = () => {
                 >
                   <div
                     className={cn(
-                      "w-10 h-10 rounded-lg flex items-center justify-center",
+                      "w-10 h-10 rounded-lg flex items-center justify-center font-semibold",
                       selectedProvider === provider.id
                         ? "bg-primary-600 text-white"
                         : "bg-neutral-100 text-neutral-600"
                     )}
                   >
+                    {provider.id === "gemini" && "G"}
                     {provider.id === "claude" && "C"}
                     {provider.id === "openai" && "O"}
-                    {provider.id === "mistral" && "M"}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
@@ -191,17 +191,32 @@ export const SettingsView: React.FC = () => {
                       Save
                     </Button>
                   </div>
+                  {provider.id === "gemini" && (
+                    <p className="text-xs text-neutral-400 mt-1">
+                      Get your FREE key at{" "}
+                      <a
+                        href="https://aistudio.google.com/app/apikey"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary-600 hover:underline"
+                      >
+                        aistudio.google.com
+                      </a>
+                      {" "}- No credit card required
+                    </p>
+                  )}
                   {provider.id === "claude" && (
                     <p className="text-xs text-neutral-400 mt-1">
                       Get your key at{" "}
                       <a
-                        href="https://console.anthropic.com/"
+                        href="https://console.anthropic.com/settings/keys"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary-600 hover:underline"
                       >
                         console.anthropic.com
                       </a>
+                      {" "}- Requires $5 minimum credit
                     </p>
                   )}
                   {provider.id === "openai" && (

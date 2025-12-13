@@ -206,23 +206,107 @@ export const EvidenceManager: React.FC<EvidenceManagerProps> = ({
     }
   }, [bundles]);
 
+  // Extract text from PDF using PDF.js
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    try {
+      // Dynamic import for PDF.js
+      const pdfjsLib = await import("pdfjs-dist");
+
+      // Set worker source
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+      let fullText = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item: any) => item.str).join(" ");
+        fullText += pageText + "\n\n";
+      }
+
+      return fullText.trim() || `[PDF file: ${file.name} - no extractable text found. May be a scanned document.]`;
+    } catch (err) {
+      console.error("PDF extraction error:", err);
+      return `[PDF file: ${file.name} - unable to extract text: ${err}]`;
+    }
+  };
+
+  // Extract file content based on type
+  const extractFileContent = async (file: File): Promise<string> => {
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    const fileType = file.type;
+
+    // Handle PDFs
+    if (fileType === "application/pdf" || extension === "pdf") {
+      return extractTextFromPDF(file);
+    }
+
+    // Handle text files
+    if (fileType.startsWith("text/") || ["txt", "md", "csv"].includes(extension || "")) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string || "");
+        reader.onerror = () => reject(new Error("Failed to read file"));
+        reader.readAsText(file);
+      });
+    }
+
+    // Handle images - return placeholder
+    if (fileType.startsWith("image/")) {
+      return `[Image file: ${file.name} - visual content not extractable as text]`;
+    }
+
+    // Handle Word documents - basic extraction
+    if (extension === "docx" || fileType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          // DOCX is a zip with XML inside - extract what text we can
+          const content = e.target?.result as string || "";
+          // Try to extract readable text from the XML
+          const textMatch = content.match(/<w:t[^>]*>([^<]*)<\/w:t>/g);
+          if (textMatch) {
+            resolve(textMatch.map(t => t.replace(/<[^>]+>/g, '')).join(' '));
+          } else {
+            resolve(`[Word document: ${file.name} - for best results, save as PDF or TXT]`);
+          }
+        };
+        reader.onerror = () => reject(new Error("Failed to read file"));
+        reader.readAsText(file);
+      });
+    }
+
+    // Default: try to read as text
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string || `[File: ${file.name}]`);
+      reader.onerror = () => resolve(`[File: ${file.name} - unable to extract text]`);
+      reader.readAsText(file);
+    });
+  };
+
   // Handle file upload with AI analysis
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Read file content
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const content = e.target?.result as string;
+    // Determine document type
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    let docType: DocumentType = 'other';
+    if (extension === 'pdf') docType = 'pdf';
+    else if (['doc', 'docx'].includes(extension || '')) docType = 'docx';
+    else if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(extension || '')) docType = 'image';
+    else if (['xls', 'xlsx', 'csv'].includes(extension || '')) docType = 'spreadsheet';
 
-      // Determine document type
-      const extension = file.name.split('.').pop()?.toLowerCase();
-      let docType: DocumentType = 'other';
-      if (extension === 'pdf') docType = 'pdf';
-      else if (['doc', 'docx'].includes(extension || '')) docType = 'docx';
-      else if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(extension || '')) docType = 'image';
-      else if (['xls', 'xlsx', 'csv'].includes(extension || '')) docType = 'spreadsheet';
+    // Show loading state
+    setAnalyzingDocument(true);
+    setAnalysisError(null);
+
+    try {
+      // Extract text content from file
+      const content = await extractFileContent(file);
 
       // Create new exhibit
       const newExhibitData: Exhibit = {
@@ -241,13 +325,10 @@ export const EvidenceManager: React.FC<EvidenceManagerProps> = ({
       // Add exhibit first
       setExhibits(prev => [...prev, newExhibitData]);
       setShowAddExhibit(false);
+      setSelectedExhibitForAnalysis(newExhibitData);
 
-      // If API key is available, run AI analysis
-      if (hasApiKey() && content) {
-        setAnalyzingDocument(true);
-        setAnalysisError(null);
-        setSelectedExhibitForAnalysis(newExhibitData);
-
+      // If API key is available and we have content, run AI analysis
+      if (hasApiKey() && content && !content.startsWith('[')) {
         try {
           const analysis = await analyzeDocument(content.substring(0, 15000), file.name);
 
@@ -271,19 +352,15 @@ export const EvidenceManager: React.FC<EvidenceManagerProps> = ({
           } : null);
         } catch (err) {
           setAnalysisError(err instanceof Error ? err.message : 'Failed to analyze document');
-        } finally {
-          setAnalyzingDocument(false);
         }
       }
-    };
-
-    reader.readAsText(file);
-
-    // Reset the input
-    if (event.target) {
-      event.target.value = '';
+    } catch (err) {
+      setAnalysisError(err instanceof Error ? err.message : 'Failed to read file');
+    } finally {
+      setAnalyzingDocument(false);
     }
   };
+
 
   // Run AI analysis on existing exhibit
   const runAIAnalysis = async (exhibit: Exhibit) => {

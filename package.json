@@ -20,6 +20,8 @@
     "build:electron": "npm run build && npm run electron:compile",
     "start": "next start",
     "lint": "next lint",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
     "cli": "ts-node src/cli/index.ts",
     "electron:compile": "tsc -p electron/tsconfig.json",
     "electron": "npm run electron:compile && electron .",

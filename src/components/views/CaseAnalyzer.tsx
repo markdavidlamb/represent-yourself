@@ -36,6 +36,7 @@ import { Button } from "../ui/Button";
 import { Input, TextArea } from "../ui/Input";
 import { Badge } from "../ui/Badge";
 import { cn } from "@/lib/utils";
+import { callAI, hasApiKey } from "@/lib/ai-service";
 
 // Types
 interface ExtractedClaim {
@@ -120,6 +121,132 @@ export const CaseAnalyzer: React.FC<CaseAnalyzerProps> = ({
   const [isDragOver, setIsDragOver] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  // Extract text from PDF using PDF.js
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    try {
+      const pdfjsLib = await import("pdfjs-dist");
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item: any) => item.str).join(" ");
+        fullText += pageText + "\n\n";
+      }
+      return fullText.trim() || `[PDF: ${file.name} - no extractable text]`;
+    } catch (err) {
+      return `[PDF: ${file.name} - extraction failed]`;
+    }
+  };
+
+  // Extract text from file based on type
+  const extractFileContent = async (file: File): Promise<string> => {
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (file.type === "application/pdf" || extension === "pdf") {
+      return extractTextFromPDF(file);
+    }
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string || "");
+      reader.onerror = () => resolve(`[File: ${file.name} - read failed]`);
+      reader.readAsText(file);
+    });
+  };
+
+  // Analyze document with AI
+  const analyzeWithAI = async (content: string, filename: string): Promise<AnalysisResult> => {
+    const systemPrompt = `You are an expert legal document analyst. Analyze this opposing party's court document and extract:
+1. Document type and summary
+2. Each claim/assertion they make (factual, legal, procedural) with strength assessment
+3. Deadlines and action items
+4. Weaknesses in their arguments to exploit
+5. Relevant case authorities they cite
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "documentType": "Type of document",
+  "summary": "2-3 sentence summary of the document and key issues",
+  "claims": [
+    {"claimNumber": 1, "type": "factual|legal|procedural", "statement": "Their claim", "paragraph": "12", "strength": "strong|moderate|weak", "responseRequired": true, "suggestedResponse": "How to respond", "relevantLaw": "Applicable law"}
+  ],
+  "deadlines": [
+    {"description": "What needs to be done", "daysFromNow": 14, "source": "Where deadline comes from", "courtRule": "Rule reference", "priority": "critical|high|medium|low", "actionRequired": "Specific action"}
+  ],
+  "weaknesses": [
+    {"category": "procedural|evidential|legal|factual", "description": "The weakness", "exploitability": "high|medium|low", "suggestedStrategy": "How to exploit", "relevantAuthority": "Case law"}
+  ],
+  "authorities": [
+    {"citation": "Case name [Year] Court", "relevance": "Why cited", "favorableFor": "you|opponent|neutral", "keyQuote": "Important quote"}
+  ],
+  "requiredActions": ["List of specific actions required to respond"],
+  "riskAssessment": {"level": "high|medium|low", "factors": ["Key risk factors"]}
+}`;
+
+    const response = await callAI(systemPrompt, `Analyze this document titled "${filename}":\n\n${content.substring(0, 12000)}`, { maxTokens: 4096 });
+
+    try {
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+          documentType: parsed.documentType || "Unknown",
+          summary: parsed.summary || "Analysis complete",
+          claims: (parsed.claims || []).map((c: any, i: number) => ({
+            id: `claim-${i}`,
+            claimNumber: c.claimNumber || i + 1,
+            type: c.type || "factual",
+            statement: c.statement || "",
+            paragraph: c.paragraph,
+            strength: c.strength || "moderate",
+            responseRequired: c.responseRequired !== false,
+            suggestedResponse: c.suggestedResponse,
+            relevantLaw: c.relevantLaw,
+          })),
+          deadlines: (parsed.deadlines || []).map((d: any, i: number) => ({
+            id: `deadline-${i}`,
+            description: d.description || "",
+            date: new Date(Date.now() + (d.daysFromNow || 14) * 24 * 60 * 60 * 1000),
+            source: d.source || "Document",
+            courtRule: d.courtRule,
+            daysRemaining: d.daysFromNow || 14,
+            priority: d.priority || "medium",
+            actionRequired: d.actionRequired || d.description,
+          })),
+          weaknesses: (parsed.weaknesses || []).map((w: any, i: number) => ({
+            id: `weakness-${i}`,
+            category: w.category || "legal",
+            description: w.description || "",
+            exploitability: w.exploitability || "medium",
+            suggestedStrategy: w.suggestedStrategy || "",
+            relevantAuthority: w.relevantAuthority,
+          })),
+          authorities: (parsed.authorities || []).map((a: any, i: number) => ({
+            id: `auth-${i}`,
+            citation: a.citation || "",
+            relevance: a.relevance || "",
+            favorableFor: a.favorableFor || "neutral",
+            keyQuote: a.keyQuote,
+          })),
+          requiredActions: parsed.requiredActions || [
+            "Review document and prepare response",
+            "Gather supporting evidence",
+          ],
+          riskAssessment: {
+            level: parsed.riskAssessment?.level || "medium",
+            factors: parsed.riskAssessment?.factors || ["Document requires careful analysis"],
+          },
+        };
+      }
+    } catch (e) {
+      console.error("AI response parse error:", e);
+    }
+
+    // Fallback if parsing fails
+    return generateMockAnalysis(filename);
+  };
+
   // Handle file upload
   const handleFileUpload = async (files: FileList | null) => {
     if (!files) return;
@@ -140,21 +267,41 @@ export const CaseAnalyzer: React.FC<CaseAnalyzerProps> = ({
 
     setDocuments((prev) => [...prev, ...newDocs]);
 
-    // Simulate analysis for each document
+    // Analyze each document
     for (const doc of newDocs) {
-      setTimeout(() => {
+      const file = Array.from(files).find(f => f.name === doc.name);
+      if (!file) continue;
+
+      try {
+        // Extract text content
+        const content = await extractFileContent(file);
+
+        let analysis: AnalysisResult;
+        if (hasApiKey() && content && !content.startsWith('[')) {
+          // Use real AI analysis
+          analysis = await analyzeWithAI(content, doc.name);
+        } else {
+          // Fallback to mock if no API key
+          analysis = generateMockAnalysis(doc.name);
+        }
+
         setDocuments((prev) =>
           prev.map((d) =>
             d.id === doc.id
-              ? {
-                  ...d,
-                  isAnalyzing: false,
-                  analysis: generateMockAnalysis(doc.name),
-                }
+              ? { ...d, isAnalyzing: false, analysis }
               : d
           )
         );
-      }, 2000 + Math.random() * 2000);
+      } catch (err) {
+        console.error("Analysis error:", err);
+        setDocuments((prev) =>
+          prev.map((d) =>
+            d.id === doc.id
+              ? { ...d, isAnalyzing: false, analysis: generateMockAnalysis(doc.name) }
+              : d
+          )
+        );
+      }
     }
   };
 
