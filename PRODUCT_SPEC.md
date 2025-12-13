@@ -658,62 +658,159 @@ Target open-source use cases:
 
 ---
 
-## Business Model Options
+## Business Model
 
-### Option A: Freemium SaaS
+### Pricing Strategy: Document-Based Subscriptions
+
+Pricing based on document generation, not seats or features. Clear value exchange.
+
+### Subscription Tiers (USD)
+
+#### Starter — $50/month
+
+**For:** Self-represented litigants, light matters, first-time users
+
+| Included | Overage |
+|----------|---------|
+| 2 standard documents/month | $35/document |
+| Basic case profile | |
+| AI chat (limited) | |
+| Email support | |
+
+**Economics:**
 ```
-FREE TIER
-- 3 document generations/month
-- Basic case profile
-- Limited AI chat (10 messages/day)
-- Community support
-
-PRO ($29/month)
-- Unlimited document generation
-- Full case analysis
-- Unlimited AI chat
-- Email support
-- Google integrations
-
-TEAM ($99/month)
-- Multiple cases
-- Priority support
-- API access
-- Custom templates
+Revenue:        $50
+COGS (2 × $9):  $18
+Gross Margin:   64%
 ```
 
-### Option B: One-Time Purchase
+*This tier converts skeptics and filters unserious users.*
+
+---
+
+#### Pro — $150/month
+
+**For:** Active litigants, ongoing cases, regular filings
+
+| Included | Overage |
+|----------|---------|
+| 6 standard documents/month | $30/document |
+| Full case profile | |
+| Unlimited AI chat | |
+| Priority queue | |
+| Evidence management | |
+
+**Economics:**
 ```
-PERSONAL LICENSE ($99)
-- Desktop app (Mac/Windows)
-- Lifetime updates for 1 year
+Revenue:        $150
+COGS (6 × $9):  $54
+Gross Margin:   64%
+```
+
+*Core revenue tier. Most users land here.*
+
+---
+
+#### Litigation — $350/month
+
+**For:** Heavy users, multiple motions, complex cases
+
+| Included | Overage |
+|----------|---------|
+| 15 standard documents/month | $25/document |
+| Extended context windows | |
+| Deep document retrieval | |
+| Long-form pleadings enabled | |
+| Bundle generation | |
+| Timeline automation | |
+
+**Economics:**
+```
+Revenue:         $350
+COGS (15 × $9):  $135
+Gross Margin:    61%
+```
+
+*High volume, still healthy margins.*
+
+---
+
+#### High-Stakes — $750/month
+
+**For:** Serious litigation, committal, summary judgment, appeals
+
+| Included | Overage |
+|----------|---------|
+| 10 standard documents/month | $30/document |
+| 5 high-stakes documents (Opus) | $120/document |
+| Maximum reasoning depth | |
+| Multi-pass verification | |
+| Hearing simulator | |
+| Opponent intelligence | |
+| Direct support channel | |
+
+**Economics:**
+```
+Revenue:              $750
+COGS:
+  10 standard × $9:   $90
+  5 high-stakes × $18: $90
+  Total COGS:         $180
+Gross Margin:         76%
+```
+
+*This tier prints money and signals seriousness.*
+
+---
+
+### Tier Comparison
+
+| Feature | Starter | Pro | Litigation | High-Stakes |
+|---------|---------|-----|------------|-------------|
+| **Price** | $50 | $150 | $350 | $750 |
+| **Standard Docs** | 2 | 6 | 15 | 10 |
+| **High-Stakes Docs** | - | - | - | 5 |
+| **Overage (std)** | $35 | $30 | $25 | $30 |
+| **Overage (premium)** | - | - | - | $120 |
+| **AI Chat** | Limited | Unlimited | Unlimited | Unlimited |
+| **Context Depth** | Basic | Standard | Extended | Maximum |
+| **Verification** | - | - | Basic | Full |
+| **Support** | Email | Email | Priority | Direct |
+| **Gross Margin** | 64% | 64% | 61% | 76% |
+
+### Unit Economics
+
+**Per-Document COGS Breakdown:**
+
+| Component | Standard Doc | High-Stakes Doc |
+|-----------|--------------|-----------------|
+| Ingestion (Gemini) | $0.50 | $0.50 |
+| Reasoning (Sonnet) | $6.00 | - |
+| Reasoning (Opus) | - | $15.00 |
+| Verification | $0.50 | $1.50 |
+| Infrastructure | $2.00 | $1.00 |
+| **Total COGS** | **$9.00** | **$18.00** |
+
+### Revenue Projections
+
+| Scenario | Users | Mix | MRR | Annual |
+|----------|-------|-----|-----|--------|
+| **Seed** | 50 | 60% Starter, 30% Pro, 10% Lit | $4,250 | $51K |
+| **Early** | 200 | 40% Starter, 40% Pro, 15% Lit, 5% High | $22,750 | $273K |
+| **Growth** | 1,000 | 30% Starter, 40% Pro, 20% Lit, 10% High | $152,500 | $1.83M |
+
+### Alternative: BYOK (Bring Your Own Key)
+
+For price-sensitive users or those with existing API credits:
+
+**BYOK Plan — $25/month**
 - All features unlocked
-- Bring your own AI API key
+- User provides own API keys (Claude, Gemini)
+- We charge for platform only
+- No included documents
+- ~90% margin on subscription
 
-PROFESSIONAL ($249)
-- + 5 years updates
-- + Priority support
-- + Custom jurisdiction templates
-```
-
-### Option C: Open Source + Services
-```
-OPEN SOURCE (FREE)
-- Full app, self-hosted
-- Bring your own AI key
-- Community support
-
-MANAGED SERVICE ($19/month)
-- Hosted version
-- Included AI credits
-- Auto-updates
-- Support
-
-ENTERPRISE (Custom)
-- Legal aid organizations
-- Custom integrations
-- Training
-```
+*Good for developers, power users, privacy-conscious.*
 
 ---
 
