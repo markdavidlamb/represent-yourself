@@ -632,29 +632,378 @@ Target open-source use cases:
 
 ## Privacy & Security
 
-### Data Handling Principles
+### Deployment Options
 
-1. **Client-side first** - All case data stored locally in browser/app
-2. **No server storage** - We never store your documents or case details
-3. **Encrypted in transit** - All API calls over HTTPS
-4. **Minimal AI sharing** - Only send what's needed for each request
-5. **Optional local AI** - Ollama option for complete privacy
+Two ways to use Represent Yourself - user chooses based on trust level:
 
-### What Gets Sent to AI Providers
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         DEPLOYMENT OPTIONS                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   OPTION A: CLOUD (app.representyourself.legal)                             │
+│   ─────────────────────────────────────────────                             │
+│   • Hosted by us, managed by us                                             │
+│   • Zero setup - just sign up                                               │
+│   • We handle AI API keys (included in price)                               │
+│   • Data passes through our servers                                         │
+│   • For users who value convenience                                         │
+│                                                                              │
+│   Trust model: "I trust you with my data"                                   │
+│   Price: Subscription tiers ($50-$750/mo)                                   │
+│                                                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   OPTION B: SELF-HOSTED (download + run locally)                            │
+│   ─────────────────────────────────────────────                             │
+│   • Runs on user's machine (Electron app or Docker)                         │
+│   • User provides own API keys (BYOK)                                       │
+│   • Data never leaves their device                                          │
+│   • API calls go directly to providers                                      │
+│   • For privacy-conscious users                                             │
+│                                                                              │
+│   Trust model: "I trust Anthropic/Google, not you"                          │
+│   Price: License fee ($25/mo) + user pays own API costs                     │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
-| Data Type | Sent to AI? | Purpose |
-|-----------|-------------|---------|
-| Document text | Yes (when analyzing) | Analysis/generation |
-| Case summary | Yes (for context) | Better responses |
-| Personal details | Minimal | Only if in documents |
-| API keys | Never | Stored locally only |
-| Usage patterns | No | N/A |
+### Architecture Comparison
+
+| Aspect | Cloud | Self-Hosted |
+|--------|-------|-------------|
+| **Hosting** | Our servers | User's machine |
+| **Setup** | Sign up, done | Download + configure |
+| **AI Keys** | We provide | User provides (BYOK) |
+| **Data Flow** | Through our servers | Direct to providers |
+| **Updates** | Automatic | Manual or auto-update |
+| **Support** | Full support | Community + docs |
+| **Price** | $50-750/mo (all-in) | $25/mo + API costs |
+| **Privacy** | Standard | Maximum |
+
+### Cloud Version (app.representyourself.legal)
+
+```
+User Browser
+    │
+    ▼
+┌─────────────────────────┐
+│   Our Cloud Platform    │
+│   ─────────────────     │
+│   • User accounts       │
+│   • Document storage    │
+│   • Case management     │
+│   • Our API keys        │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│   LLM Providers         │
+│   (our accounts)        │
+└─────────────────────────┘
+```
+
+**Pros:**
+- Zero friction signup
+- No technical setup
+- Included AI credits
+- Cross-device sync
+- Automatic backups
+
+**Cons:**
+- Data on our servers
+- Dependent on our uptime
+- Less privacy
+
+### Self-Hosted Version (Desktop App / Docker)
+
+```
+┌─────────────────────────────────────────────┐
+│           USER'S MACHINE                     │
+│                                              │
+│   ┌──────────────────────────────────────┐  │
+│   │  Represent Yourself App              │  │
+│   │  ─────────────────────              │  │
+│   │  • Local storage (SQLite/files)     │  │
+│   │  • User's API keys                  │  │
+│   │  • Direct API calls                 │  │
+│   └──────────────────┬───────────────────┘  │
+│                      │                       │
+└──────────────────────┼───────────────────────┘
+                       │
+                       │ Direct HTTPS
+                       ▼
+            ┌─────────────────────────┐
+            │   LLM Providers         │
+            │   (user's accounts)     │
+            └─────────────────────────┘
+
+┌─────────────────────────┐
+│   Our Servers           │
+│   ─────────────         │
+│   • License validation  │
+│   • Feature flags       │
+│   • Update checks       │
+│   • NO user data        │
+└─────────────────────────┘
+```
+
+**Pros:**
+- Maximum privacy
+- Data never leaves device
+- User controls everything
+- Works offline (except AI)
+- No vendor lock-in
+
+**Cons:**
+- Technical setup required
+- User manages own API keys
+- No cross-device sync
+- Manual backups
+
+### Self-Hosted Deployment Options
+
+**Option B1: Desktop App (Electron)**
+```bash
+# Download from releases page
+# Double-click to install
+# Enter license key
+# Add your API keys in settings
+```
+- Mac (Intel + Apple Silicon)
+- Windows
+- Linux
+
+**Option B2: Docker (for servers/NAS)**
+```bash
+docker run -d \
+  -p 3000:3000 \
+  -v ~/represent-data:/data \
+  -e LICENSE_KEY=xxx \
+  representyourself/app:latest
+```
+- Run on home server
+- Run on NAS (Synology, etc.)
+- Run on VPS (if user wants own cloud)
+
+**Option B3: Source Code (developers)**
+```bash
+git clone https://github.com/representyourself/app
+npm install
+npm run build
+npm start
+```
+- Full customization
+- Self-audit the code
+- Contribute improvements
+
+### Pricing by Deployment
+
+| Plan | Cloud | Self-Hosted |
+|------|-------|-------------|
+| **Starter** | $50/mo (2 docs included) | $25/mo + own API |
+| **Pro** | $150/mo (6 docs included) | $25/mo + own API |
+| **Litigation** | $350/mo (15 docs included) | $25/mo + own API |
+| **High-Stakes** | $750/mo (premium AI included) | $50/mo + own API |
+
+Self-hosted users pay flat license fee + their own API costs.
+Typical API cost: $5-30/month depending on usage.
+
+### Trust Spectrum
+
+```
+MAXIMUM CONVENIENCE ◄────────────────────────► MAXIMUM PRIVACY
+
+┌─────────┐   ┌─────────────┐   ┌────────────┐   ┌──────────┐
+│  Cloud  │   │ Cloud +     │   │Self-hosted │   │Self-hosted│
+│ Managed │   │ Own Keys    │   │ + BYOK     │   │ + Ollama │
+│         │   │ (hybrid)    │   │            │   │ (local)  │
+└─────────┘   └─────────────┘   └────────────┘   └──────────┘
+     │              │                  │               │
+     ▼              ▼                  ▼               ▼
+  We see        We see           We see           We see
+  everything    metadata only    license only     nothing
+```
+
+### The Trust Problem (Addressed)
+
+**User A:** "I just want it to work."
+→ Use Cloud version. We handle everything.
+
+**User B:** "I don't want you seeing my documents."
+→ Use Self-hosted + BYOK. We only validate your license.
+
+**User C:** "I don't trust anyone with my data."
+→ Use Self-hosted + Ollama. Nothing leaves your machine.
+
+### Zero-Knowledge Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    USER'S DEVICE                             │
+│                                                              │
+│   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
+│   │  Our App     │    │  Local       │    │  API Keys    │  │
+│   │  (UI only)   │    │  Storage     │    │  (encrypted) │  │
+│   └──────┬───────┘    └──────────────┘    └──────┬───────┘  │
+│          │                                        │          │
+│          │         DIRECT CONNECTION              │          │
+│          └────────────────┬───────────────────────┘          │
+│                           │                                  │
+└───────────────────────────┼──────────────────────────────────┘
+                            │
+                            │ HTTPS (user → provider directly)
+                            │
+                            ▼
+            ┌───────────────────────────────┐
+            │       LLM PROVIDER            │
+            │   (Anthropic / Google)        │
+            │                               │
+            │   User has direct agreement   │
+            │   with provider's ToS         │
+            └───────────────────────────────┘
+
+            ┌───────────────────────────────┐
+            │       OUR SERVERS             │
+            │                               │
+            │   ❌ No documents             │
+            │   ❌ No case data             │
+            │   ❌ No API keys              │
+            │   ❌ No user content          │
+            │                               │
+            │   ✅ Only: license validation │
+            │   ✅ Only: usage counts       │
+            │   ✅ Only: feature flags      │
+            └───────────────────────────────┘
+```
+
+### What We See vs What Providers See
+
+| Data | Us (Represent Yourself) | LLM Provider |
+|------|-------------------------|--------------|
+| Documents | ❌ Never | ✅ When analyzing |
+| Case details | ❌ Never | ✅ When generating |
+| Personal info | ❌ Never | ✅ If in documents |
+| API keys | ❌ Never | ✅ User's own key |
+| Usage count | ✅ Aggregate only | ✅ Per-request |
+| Feature usage | ✅ Anonymous | ❌ No |
+
+### Trust Model Options
+
+**Option 1: BYOK (Maximum Privacy)**
+```
+User provides own API keys
+├── Calls go directly from their device to provider
+├── We see: nothing about their content
+├── Provider sees: their requests (under user's account)
+└── User's existing ToS with provider applies
+```
+
+**Option 2: Managed Keys (Convenience)**
+```
+We provide API access (pooled keys)
+├── Calls still go from their device
+├── We see: usage counts, not content
+├── Provider sees: requests under our account
+└── Our ToS + provider ToS apply
+```
+
+**Option 3: Local Only (Paranoid Mode)**
+```
+Ollama on user's machine
+├── Nothing leaves their device
+├── We see: nothing
+├── Provider sees: nothing
+└── User responsible for model quality
+```
+
+### Implementation: Client-Side Direct Calls
+
+All LLM API calls are made directly from the user's browser/app:
+
+```typescript
+// This happens ON THE USER'S DEVICE
+async function callLLM(prompt: string) {
+  // API key from user's local storage
+  const apiKey = localStorage.getItem('user_api_key');
+
+  // Direct call to provider - never touches our servers
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    headers: {
+      'x-api-key': apiKey,  // User's own key
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({ messages: [...] })
+  });
+
+  // Response stays on user's device
+  return response.json();
+}
+```
+
+**Key point:** The `anthropic-dangerous-direct-browser-access` header enables browser-to-API calls without a backend proxy. Same pattern works for Gemini.
+
+### What Our Backend Does (Minimal)
+
+```
+Our API handles ONLY:
+├── License key validation (is subscription active?)
+├── Document count tracking (how many this month?)
+├── Feature flag checks (which tier features enabled?)
+└── Anonymous analytics (which features are popular?)
+
+Our API NEVER receives:
+├── Document content
+├── Case details
+├── User's API keys
+├── Generated outputs
+└── Chat histories
+```
+
+### Data Residency Guarantees
+
+| Data Type | Location | Encrypted | We Can Access? |
+|-----------|----------|-----------|----------------|
+| Documents | User's device only | Yes (browser) | ❌ No |
+| Case profile | User's device only | Yes (browser) | ❌ No |
+| API keys | User's device only | Yes (encrypted) | ❌ No |
+| Chat history | User's device only | Yes (browser) | ❌ No |
+| Usage counts | Our servers | Yes | ✅ Aggregate |
+| Subscription | Our servers | Yes | ✅ Yes |
+
+### Privacy Comparison
+
+| Approach | Privacy | Convenience | Cost |
+|----------|---------|-------------|------|
+| **BYOK** | Maximum | Medium | User pays provider |
+| **Managed** | High | Maximum | We pay provider |
+| **Local Ollama** | Absolute | Low | Free (GPU costs) |
+
+### User-Facing Privacy Controls
+
+```
+Settings → Privacy
+├── [ ] Use my own API keys (BYOK mode)
+├── [ ] Enable local processing only (Ollama)
+├── [ ] Clear all local data
+├── [ ] Export my data (JSON)
+└── [ ] Delete my account
+```
 
 ### Compliance Considerations
 
-- **GDPR**: No EU data storage, user controls all data
+- **GDPR**: User controls all PII, we process nothing
+- **HIPAA**: Not applicable (we don't store PHI)
 - **Attorney-Client Privilege**: Tool is not a lawyer, no privilege created
 - **Court Rules**: Users responsible for accuracy of filings
+- **Data Sovereignty**: All data stays on user's device
+
+### The Privacy Pitch
+
+> "Your legal documents never leave your device. We're just the UI layer.
+> When you use AI features, your device talks directly to Anthropic or Google -
+> under your own account, your own API keys, your own agreement with them.
+> We couldn't read your documents even if we wanted to."
 
 ---
 
