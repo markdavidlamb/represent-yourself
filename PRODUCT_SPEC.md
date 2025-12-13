@@ -1207,7 +1207,8 @@ For price-sensitive users or those with existing API credits:
 - [x] Evidence management
 - [x] Timeline builder
 - [x] AI chat assistant
-- [ ] Gemini API integration
+- [x] Gemini API integration (free tier)
+- [x] Multi-provider auth gate
 - [ ] Polish onboarding flow
 
 ### Q2 2025: Strategic Tools
@@ -1286,5 +1287,5 @@ For price-sensitive users or those with existing API credits:
 
 ---
 
-*Document Version: 1.0*
-*Last Updated: December 2024*
+*Document Version: 1.1*
+*Last Updated: December 2025*

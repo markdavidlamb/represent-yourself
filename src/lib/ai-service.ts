@@ -1,27 +1,28 @@
 /**
  * AI Service
- * Supports Claude (Anthropic), ChatGPT (OpenAI), and Mistral (coming soon)
+ * Supports Gemini (Google), Claude (Anthropic), and ChatGPT (OpenAI)
+ * Default: Gemini (free tier available)
  */
 
-export type AIProvider = "claude" | "openai" | "mistral";
+export type AIProvider = "gemini" | "claude" | "openai";
 
 // Storage keys
 const PROVIDER_KEY = "ai_provider";
+const GEMINI_KEY = "google_api_key";
 const CLAUDE_KEY = "anthropic_api_key";
 const OPENAI_KEY = "openai_api_key";
-const MISTRAL_KEY = "mistral_api_key";
 
 // Default models
 const MODELS = {
+  gemini: "gemini-1.5-flash",
   claude: "claude-sonnet-4-20250514",
   openai: "gpt-4o",
-  mistral: "mistral-large-latest",
 };
 
 // Get/set provider
 export function getProvider(): AIProvider {
-  if (typeof window === "undefined") return "claude";
-  return (localStorage.getItem(PROVIDER_KEY) as AIProvider) || "claude";
+  if (typeof window === "undefined") return "gemini";
+  return (localStorage.getItem(PROVIDER_KEY) as AIProvider) || "gemini";
 }
 
 export function setProvider(provider: AIProvider): void {
@@ -33,14 +34,14 @@ export function setProvider(provider: AIProvider): void {
 export function getApiKey(provider?: AIProvider): string | null {
   if (typeof window === "undefined") return null;
   const p = provider || getProvider();
-  const keys = { claude: CLAUDE_KEY, openai: OPENAI_KEY, mistral: MISTRAL_KEY };
+  const keys = { gemini: GEMINI_KEY, claude: CLAUDE_KEY, openai: OPENAI_KEY };
   return localStorage.getItem(keys[p]);
 }
 
 export function setApiKey(key: string, provider?: AIProvider): void {
   if (typeof window === "undefined") return;
   const p = provider || getProvider();
-  const keys = { claude: CLAUDE_KEY, openai: OPENAI_KEY, mistral: MISTRAL_KEY };
+  const keys = { gemini: GEMINI_KEY, claude: CLAUDE_KEY, openai: OPENAI_KEY };
   localStorage.setItem(keys[p], key);
 }
 
@@ -51,14 +52,51 @@ export function hasApiKey(provider?: AIProvider): boolean {
 export function clearApiKey(provider?: AIProvider): void {
   if (typeof window === "undefined") return;
   const p = provider || getProvider();
-  const keys = { claude: CLAUDE_KEY, openai: OPENAI_KEY, mistral: MISTRAL_KEY };
+  const keys = { gemini: GEMINI_KEY, claude: CLAUDE_KEY, openai: OPENAI_KEY };
   localStorage.removeItem(keys[p]);
+}
+
+// Gemini API call (FREE tier: 15 RPM, 1500 requests/day)
+async function callGemini(systemPrompt: string, userMessage: string, maxTokens: number): Promise<string> {
+  const apiKey = getApiKey("gemini");
+  if (!apiKey) throw new Error("No Gemini API key configured. Get one free at aistudio.google.com");
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.gemini}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { text: `${systemPrompt}\n\n${userMessage}` }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: maxTokens,
+        },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: { message: response.statusText } }));
+    throw new Error(error.error?.message || `Gemini API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
 
 // Claude API call
 async function callClaude(systemPrompt: string, userMessage: string, maxTokens: number): Promise<string> {
   const apiKey = getApiKey("claude");
-  if (!apiKey) throw new Error("No Claude API key configured");
+  if (!apiKey) throw new Error("No Claude API key configured. Get one at console.anthropic.com");
 
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -126,15 +164,16 @@ export async function callAI(
   const provider = getProvider();
   const maxTokens = options?.maxTokens || 4096;
 
-  if (provider === "mistral") {
-    throw new Error("Mistral support coming soon! Please use Claude or ChatGPT for now.");
+  switch (provider) {
+    case "gemini":
+      return callGemini(systemPrompt, userMessage, maxTokens);
+    case "claude":
+      return callClaude(systemPrompt, userMessage, maxTokens);
+    case "openai":
+      return callOpenAI(systemPrompt, userMessage, maxTokens);
+    default:
+      return callGemini(systemPrompt, userMessage, maxTokens);
   }
-
-  if (provider === "openai") {
-    return callOpenAI(systemPrompt, userMessage, maxTokens);
-  }
-
-  return callClaude(systemPrompt, userMessage, maxTokens);
 }
 
 // Legal document generation prompts
@@ -972,12 +1011,24 @@ What do we need to know to truly understand this case?`;
 // Provider info for UI
 export const PROVIDERS = [
   {
+    id: "gemini" as AIProvider,
+    name: "Gemini",
+    company: "Google",
+    description: "Free tier available - recommended for getting started",
+    available: true,
+    keyPlaceholder: "AIza...",
+    keyUrl: "https://aistudio.google.com/app/apikey",
+    free: true,
+  },
+  {
     id: "claude" as AIProvider,
     name: "Claude",
     company: "Anthropic",
-    description: "Best for legal writing",
+    description: "Best for legal writing - requires $5 minimum",
     available: true,
     keyPlaceholder: "sk-ant-...",
+    keyUrl: "https://console.anthropic.com/settings/keys",
+    free: false,
   },
   {
     id: "openai" as AIProvider,
@@ -986,13 +1037,7 @@ export const PROVIDERS = [
     description: "Popular and versatile AI assistant",
     available: true,
     keyPlaceholder: "sk-...",
-  },
-  {
-    id: "mistral" as AIProvider,
-    name: "Mistral",
-    company: "Mistral AI",
-    description: "Coming soon - European AI model",
-    available: false,
-    keyPlaceholder: "",
+    keyUrl: "https://platform.openai.com/api-keys",
+    free: false,
   },
 ];
